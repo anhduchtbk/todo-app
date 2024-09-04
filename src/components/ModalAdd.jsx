@@ -7,27 +7,18 @@ import {
 import {
     Modal,
 } from "antd";
-import dayjs from "dayjs";
 
 const { TextArea } = Input;
 
-export const ModalAddElement = ({ hideAdd, addNewTask, open, ...props }) => {
-    const [currentVal, setCurrentVal] = useState(props.currentVal);
-    
-    useEffect(() => {
-        console.log('props.currentVal:', props.currentVal);
-        setCurrentVal(props.currentVal);
-    }, [props.currentVal]);
-    
-    console.log('currentVal:', currentVal);
+export const ModalAddElement = ({ hideAdd, addNewTask, editTask, open, ...props }) => {
     return (
         <>
             <Modal
                 title="Add todo"
                 open={open}
-                onOk={addNewTask}
+                onOk={props.currentVal.key !== -1 ? editTask : addNewTask}
                 onCancel={hideAdd}
-                okText={!(Object.keys(currentVal).length === 0) ? 'Edit' : 'Add'}
+                okText={props.currentVal.key !== -1 ? 'Edit' : 'Add'}
                 cancelText='Cancel'
                 zIndex={9999}
             >
@@ -39,7 +30,7 @@ export const ModalAddElement = ({ hideAdd, addNewTask, open, ...props }) => {
                         rows={4}
                         placeholder="Nội dung..."
                         onChange={props.onChangeInput}
-                        defaultValue={currentVal.task !== '' ? currentVal.task : ''}
+                        value={props.currentVal.task}
                     />
                     <Space
                         direction="vertical"
@@ -48,7 +39,7 @@ export const ModalAddElement = ({ hideAdd, addNewTask, open, ...props }) => {
                         <DatePicker
                             format="YYYY-MM-DD"
                             onChange={props.timeStart}
-                            defaultValue={currentVal.start ? dayjs(currentVal.start) : null}
+                            value={props.currentVal.start ? props.currentVal.start : null}
                         />
                     </Space>
                     <Space
@@ -58,9 +49,10 @@ export const ModalAddElement = ({ hideAdd, addNewTask, open, ...props }) => {
                         <DatePicker
                             format="YYYY-MM-DD"
                             onChange={props.timeEnd}
-                            defaultValue={currentVal.end ? dayjs(currentVal.end) : null}
+                            value={props.currentVal.end ? props.currentVal.end : null}
                         />
                     </Space>
+                    <p className="text-red-600">{props.noticeError}</p>
                 </Space>
             </Modal>
         </>

@@ -14,6 +14,8 @@ import {
   Space
 } from 'antd';
 
+import dayjs from "dayjs";
+
 const Row = (props) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: props['data-row-key'],
@@ -35,14 +37,11 @@ const Row = (props) => {
 export const DragE = (props) => {
   const [dataSource, setDataSource] = useState(props.listTask);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const onSelectChange = (newSelectedRowKeys) => {
-    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
 
   const handleDelete = (key) => {
-    const newData = dataSource.filter((item) => item.key !== key);
-    setDataSource(newData);
+    // const newData = dataSource.filter((item) => item.key !== key);
+    // setDataSource(newData);
+    props.handleDelete(key)
   };
 
   const columns = [
@@ -64,11 +63,13 @@ export const DragE = (props) => {
       title: 'Time Start',
       dataIndex: 'start',
       defaultSortOrder: 'descend',
+      render: (a) => a.format('YYYY-MM-DD'),
       sorter: (a, b) => Date.parse(a.start) - Date.parse(b.start),
     },
     {
       title: 'Time End',
       dataIndex: 'end',
+      render: (a) => a.format('YYYY-MM-DD'),
       sorter: (a, b) => Date.parse(a.end) - Date.parse(b.end),
     },
     {
@@ -87,8 +88,8 @@ export const DragE = (props) => {
   ];
 
   useEffect(() => {
-    setDataSource(props.listTask)
-  }, [props.listTask])
+    setDataSource(props.listTask.filter(item => item.task.includes(props.filterInput || '')))
+  }, [props.listTask, props.filterInput])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -107,14 +108,32 @@ export const DragE = (props) => {
       });
     }
   };
+
+  const rowSelection = {
+    onChange: (selectedRowKeys, _) => {
+      props.onChangeRowSelected(selectedRowKeys);
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.name === 'Disabled User',
+      // Column configuration not to be checked
+      name: record.name,
+    }),
+  }
   return (
     <DndContext sensors={sensors} modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
       <SortableContext
         // rowKey array
-        items={dataSource.map((i) => i.key)}
+        items={dataSource
+          .map((i) => {
+            console.log("asdas",i, 'input', props.filterInput);
+            return i.key;
+          })}
         strategy={verticalListSortingStrategy}
       >
         <Table
+          rowSelection={{
+            ...rowSelection,
+          }}
           components={{
             body: {
               row: Row,

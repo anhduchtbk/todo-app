@@ -1,5 +1,5 @@
 import React,
-{ useState, useMemo, useEffect } from 'react';
+{ useState, useEffect } from 'react';
 import './App.css';
 import {
   Input,
@@ -61,11 +61,6 @@ function App() {
     setKeyRowSelected(rowsSelected);
   }
 
-  const contextValue = useMemo(
-    () => ({
-    }),
-    [],
-  );
 
   const getRealTime = () => {
     var today = new Date();

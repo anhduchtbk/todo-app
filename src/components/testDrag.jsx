@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useEffect } from 'react';
 import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -11,10 +12,9 @@ import { CSS } from '@dnd-kit/utilities';
 import {
   Table,
   Tag,
-  Space
+  Space,
+  Popconfirm
 } from 'antd';
-
-import dayjs from "dayjs";
 
 const Row = (props) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -36,7 +36,6 @@ const Row = (props) => {
 };
 export const DragE = (props) => {
   const [dataSource, setDataSource] = useState(props.listTask);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   const handleDelete = (key) => {
     // const newData = dataSource.filter((item) => item.key !== key);
@@ -82,6 +81,14 @@ export const DragE = (props) => {
           <Space>
             <a onClick={() => handleDelete(record.key)} className='text-teal-300'>Delete</a>
             <a onClick={() => props.editTodo(record.key, record)} className='text-teal-300'>Edit</a>
+            {
+              record.isComplete
+                ? <></>
+                : <Popconfirm title="Sure to complete this task?" onConfirm={() => props.onChangeRowSelected([record.key])}>
+                  <a className='text-teal-300'>Complete</a>
+                </Popconfirm>
+            }
+
           </Space>
         ) : null,
     },
@@ -125,15 +132,14 @@ export const DragE = (props) => {
         // rowKey array
         items={dataSource
           .map((i) => {
-            console.log("asdas",i, 'input', props.filterInput);
             return i.key;
           })}
         strategy={verticalListSortingStrategy}
       >
         <Table
-          rowSelection={{
-            ...rowSelection,
-          }}
+          // rowSelection={{
+          //   ...rowSelection,
+          // }}
           components={{
             body: {
               row: Row,
